@@ -70,6 +70,25 @@ const RICH_PATTERNS: {
     build: (m: RegExpMatchArray) => ParsedMessagePart;
 }[] = [
     {
+        // 心动赴约邀请函
+        regex: /\[发送邀请函[：:]([^\]]+)\]/,
+        build: (m) => ({
+            content: "",
+            mediaType: "custom_app_card",
+            mediaData: {
+                appId: "xd_appointment",
+                appLabel: "心动赴约",
+                directiveId: "send-invitation",
+                directiveArgs: [m[1].trim()],
+                summary: `收到一张心动邀请函`,
+                card: {
+                    height: 320,
+                    html: `<div style="height:100%; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;"><div style="background:#fffdf8; border:1px solid #e3d8c8; width:100%; height:100%; border-radius:4px; box-shadow:0 4px 15px rgba(0,0,0,0.05); text-align:center; padding:30px 20px; position:relative;"><h2 style="font-family:serif; font-style:italic; font-size:28px; color:#222; margin:0 0 8px 0;">Invitation</h2><p style="font-size:12px; color:#999; letter-spacing:4px; margin:0 0 24px 0;">· 永恒之约 ·</p><p style="font-size:14px; color:#555; margin:0 0 8px 0;">诚邀您赴约</p><h3 style="font-size:20px; color:#111; margin:0;">与 ${m[1].trim()} 的邂逅</h3><div style="margin-top:16px; width:40px; height:40px; background:#8b3a3a; border-radius:50%; margin:16px auto 0; display:flex; align-items:center; justify-content:center; color:white; font-size:20px;">♥</div></div></div>`
+                }
+            }
+        })
+    },
+    {
         // 3段格式：[红包:金额:个数:留言]
         regex: new RegExp(`\\[红包${C}(\\d+(?:\\.\\d+)?)${C}(\\d+)${C}([^\\]]*)\\]`),
         build: (m) => ({
