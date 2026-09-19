@@ -56,6 +56,7 @@ import {
   generateStoryCompletion,
   getStoryRenderSignature,
   rebuildStorySessionRenderCache,
+  STORY_APP_ID,
 } from "@/lib/story-engine";
 import {
   createOrGetStorySession,
@@ -94,6 +95,7 @@ import {
 
 type StoryAppProps = {
   onClose: () => void;
+  launchContext?: any;
 };
 
 type StoryGenerationRun = {
@@ -448,7 +450,7 @@ const StoryComposer = memo(function StoryComposer({
   );
 });
 
-export function StoryApp({ onClose }: StoryAppProps) {
+export function StoryApp({ onClose, launchContext }: StoryAppProps) {
   const [ready, setReady] = useState(false);
   const [, setStorageVersion] = useState(0);
   // 公用方案仓库版本：仓库内容变化（设置页/小卷工具写入）时刷新方案相关 UI
@@ -460,6 +462,21 @@ export function StoryApp({ onClose }: StoryAppProps) {
   const [floatingChatVersion, setFloatingChatVersion] = useState(0);
   const [activeCharacterId, setActiveCharacterId] = useState<string>("");
   const [activeSessionId, setActiveSessionId] = useState<string>("");
+
+  // 处理外部跳转（如聊天室邀请函）
+  useEffect(() => {
+    if (ready && launchContext?.directiveId === "send-invitation" && launchContext?.characterId) {
+      const timer = setTimeout(() => {
+        const existingSession = allSessions.find(s => s.characterId === launchContext.characterId);
+        if (existingSession) {
+          handlePlaySession(existingSession.id);
+        } else {
+          handlePlayWithCharacter(launchContext.characterId);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [ready, launchContext, allSessions, handlePlaySession, handlePlayWithCharacter]);
   const [messages, setMessages] = useState<StoryMessage[]>([]);
   const [visibleMessageCount, setVisibleMessageCount] = useState(STORY_INITIAL_LOAD);
   const [composerAppendRequest, setComposerAppendRequest] = useState<StoryComposerAppendRequest | null>(null);

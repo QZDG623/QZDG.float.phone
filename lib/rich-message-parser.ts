@@ -76,8 +76,8 @@ const RICH_PATTERNS: {
             content: "",
             mediaType: "custom_app_card",
             mediaData: {
-                appId: "xd_appointment",
-                appLabel: "心动赴约",
+                appId: "story",
+                appLabel: "剧情",
                 directiveId: "send-invitation",
                 directiveArgs: [m[1].trim()],
                 summary: `收到一张心动邀请函`,
