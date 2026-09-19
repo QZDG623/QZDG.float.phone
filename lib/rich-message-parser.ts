@@ -71,7 +71,7 @@ const RICH_PATTERNS: {
 }[] = [
     {
         // 心动赴约邀请函
-        regex: /\[发送邀请函[：:]([^\]]+)\]/,
+        regex: /\[赴约邀请[：:]([^\]]+)\]/,
         build: (m) => ({
             content: "",
             mediaType: "custom_app_card",
