@@ -718,6 +718,7 @@ const ChatTextInputBar = memo(forwardRef<ChatTextInputHandle, {
     );
     const suggestEnabled = !inputLocked && !panelOpen && !suggestClosed && inputText.trim().length > 0;
     const plusMenuItems = [
+        { icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0Z" /><circle cx="12" cy="10" r="3" /></svg>, label: "线下模式", onClick: onToggleOfflineMode },
         { icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>, label: "照片墙", onClick: () => onOpenRichModal("photo") },
         { icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="7" y1="8" x2="17" y2="8" /><line x1="7" y1="12" x2="14" y2="12" /><line x1="7" y1="16" x2="11" y2="16" /></svg>, label: "文字图片", onClick: () => onOpenRichModal("text_photo") },
         { icon: <AlertCircle size={22} strokeWidth={1.5} color="var(--c-text)" />, label: "系统指令", onClick: () => onOpenRichModal("system_instruction") },
@@ -818,14 +819,22 @@ const ChatTextInputBar = memo(forwardRef<ChatTextInputHandle, {
 
             <div className="chat-input-actions">
                 <button
-                    onClick={onToggleOfflineMode}
+                    onClick={() => {
+                        const appName = "剧情收藏馆";
+                        const customApp = getInstalledCustomApp(appName);
+                        if (customApp) {
+                            const event = new CustomEvent("open-app", { detail: { appId: customApp.id } });
+                            window.dispatchEvent(event);
+                        } else {
+                            alert("未安装「" + appName + "」");
+                        }
+                    }}
                     className="ui-bare-btn text-[var(--c-text)] chat-offline-toggle"
-                    aria-label="线下模式"
-                    title="线下模式"
+                    aria-label="剧情收藏馆"
+                    title="一键跳转剧情收藏馆"
                 >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0Z" />
-                        <circle cx="12" cy="10" r="3" />
+                        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
                     </svg>
                 </button>
                 <button onClick={onToggleEmojiPanel} disabled={inputLocked} className="ui-bare-btn text-[var(--c-text)]" style={inputLocked ? { opacity: 0.35 } : undefined}>
