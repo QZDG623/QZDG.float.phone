@@ -820,14 +820,8 @@ const ChatTextInputBar = memo(forwardRef<ChatTextInputHandle, {
             <div className="chat-input-actions">
                 <button
                     onClick={() => {
-                        const appName = "剧情";
-                        const customApp = getInstalledCustomApp(appName);
-                        if (customApp) {
-                            const event = new CustomEvent("open-app", { detail: { appId: customApp.id } });
-                            window.dispatchEvent(event);
-                        } else {
-                            alert("未安装「" + appName + "」APP");
-                        }
+                        // 触发全局事件打开系统内置的「剧情」模块，而非自定义应用
+                        window.dispatchEvent(new CustomEvent("open-app", { detail: { appId: "story" } }));
                     }}
                     className="ui-bare-btn text-[var(--c-text)] chat-offline-toggle"
                     aria-label="剧情"
