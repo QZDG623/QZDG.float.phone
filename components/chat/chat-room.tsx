@@ -820,18 +820,18 @@ const ChatTextInputBar = memo(forwardRef<ChatTextInputHandle, {
             <div className="chat-input-actions">
                 <button
                     onClick={() => {
-                        const appName = "剧情收藏馆";
+                        const appName = "剧情";
                         const customApp = getInstalledCustomApp(appName);
                         if (customApp) {
                             const event = new CustomEvent("open-app", { detail: { appId: customApp.id } });
                             window.dispatchEvent(event);
                         } else {
-                            alert("未安装「" + appName + "」");
+                            alert("未安装「" + appName + "」APP");
                         }
                     }}
                     className="ui-bare-btn text-[var(--c-text)] chat-offline-toggle"
-                    aria-label="剧情收藏馆"
-                    title="一键跳转剧情收藏馆"
+                    aria-label="剧情"
+                    title="一键跳转剧情"
                 >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
