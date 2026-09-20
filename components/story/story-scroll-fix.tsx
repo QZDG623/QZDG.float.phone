@@ -12,14 +12,16 @@ const STORY_SCROLL_FIX = `
 }
 `;
 
-export function StoryScrollFix() {
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.setAttribute("data-story-scroll-fix", "true");
-    style.textContent = STORY_SCROLL_FIX;
-    document.head.appendChild(style);
-    return () => style.remove();
-  }, []);
+export function withStoryScrollFix<P extends object>(Component: React.ComponentType<P>) {
+  return function WithStoryScrollFix(props: P) {
+    useEffect(() => {
+      const style = document.createElement("style");
+      style.setAttribute("data-story-scroll-fix", "true");
+      style.textContent = STORY_SCROLL_FIX;
+      document.head.appendChild(style);
+      return () => style.remove();
+    }, []);
 
-  return null;
+    return <Component {...props} />;
+  };
 }
