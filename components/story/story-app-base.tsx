@@ -466,16 +466,21 @@ export function StoryApp({ onClose, launchContext }: StoryAppProps) {
   useEffect(() => {
     if (ready && launchContext?.directiveId === "send-invitation" && launchContext?.characterId) {
       const timer = setTimeout(() => {
-        const existingSession = allSessions.find(s => s.characterId === launchContext.characterId);
+        const sessions = loadStorySessions();
+        const existingSession = sessions.find(s => s.characterId === launchContext.characterId);
         if (existingSession) {
-          handlePlaySession(existingSession.id);
+          setActiveSessionId(existingSession.id);
+          setActiveCharacterId(existingSession.characterId);
         } else {
-          handlePlayWithCharacter(launchContext.characterId);
+          // 如果没有对应角色的剧情，就新建一个会话并进入
+          const newSessionId = createOrGetStorySession(launchContext.characterId).id;
+          setActiveSessionId(newSessionId);
+          setActiveCharacterId(launchContext.characterId);
         }
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [ready, launchContext, allSessions, handlePlaySession, handlePlayWithCharacter]);
+  }, [ready, launchContext]);
   const [messages, setMessages] = useState<StoryMessage[]>([]);
   const [visibleMessageCount, setVisibleMessageCount] = useState(STORY_INITIAL_LOAD);
   const [composerAppendRequest, setComposerAppendRequest] = useState<StoryComposerAppendRequest | null>(null);
