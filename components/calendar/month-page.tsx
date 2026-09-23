@@ -16,6 +16,8 @@ type MonthCell = {
   weekday: number;      // 0 = 周日
   lunarLabel: string;
   lunarFirst: boolean;
+  holidayBadge?: "休" | "班";
+  isHolidayName?: boolean;
 };
 
 type MonthBlock = {
@@ -50,6 +52,8 @@ function buildMonths(todayIso: string): MonthBlock[] {
         weekday: d.getDay(),
         lunarLabel: lunar?.cellLabel ?? "",
         lunarFirst: lunar?.isFirstDay ?? false,
+        holidayBadge: lunar?.holidayInfo?.badge,
+        isHolidayName: Boolean(lunar?.holidayInfo?.name),
       });
     }
     if (week.length > 0) weeks.push(week);
@@ -164,8 +168,15 @@ export function CalendarMonthPage({
                       aria-label={`${block.month + 1}月${cell.day}日${items?.length ? `，${items.length}个日程` : ""}`}
                       onClick={() => onPickDay(cell.iso)}
                     >
+                      {cell.holidayBadge ? (
+                        <span className={`calendar-holiday-badge data-badge-${cell.holidayBadge}`}>
+                          {cell.holidayBadge}
+                        </span>
+                      ) : null}
                       <span className="calendar-month-num">{cell.day}</span>
-                      <span className={`calendar-month-lunar${cell.lunarFirst ? " is-first" : ""}`}>{cell.lunarLabel}</span>
+                      <span className={`calendar-month-lunar${cell.lunarFirst ? " is-first" : ""}${cell.isHolidayName ? " is-holiday-name" : ""}`}>
+                        {cell.lunarLabel}
+                      </span>
                       <span className="calendar-month-dots" aria-hidden="true">
                         {cycle ? <i className="calendar-cycle-dot" data-type={cycle.type} /> : null}
                         {items && items.length > 0 ? <i className="calendar-event-dot" data-color={items[0].colorKey} /> : null}

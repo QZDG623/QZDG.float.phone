@@ -15,6 +15,8 @@ const LUNAR_MONTH_NAMES = [
   "七月", "八月", "九月", "十月", "冬月", "腊月",
 ] as const;
 
+import { getDayHolidayInfo, type DayHolidayInfo } from "./holidays";
+
 export type LunarInfo = {
   /** 月名，如 正月 / 闰四月 / 腊月 */
   monthLabel: string;
@@ -22,8 +24,10 @@ export type LunarInfo = {
   dayLabel: string;
   /** 当天是否初一（初一显示月名） */
   isFirstDay: boolean;
-  /** 日历格子里显示的小字：初一显示月名，其余显示日名 */
+  /** 日历格子里显示的小字：优先显示节日名/节气，其次初一月名，其余显示日名 */
   cellLabel: string;
+  /** 节假日与调休标注信息（休 / 班 徽标 & 节日名） */
+  holidayInfo?: DayHolidayInfo;
 };
 
 let lunarFormatter: Intl.DateTimeFormat | null | undefined;
@@ -53,6 +57,8 @@ export function getLunarInfo(date: Date): LunarInfo | null {
 
   const formatter = getFormatter();
   let info: LunarInfo | null = null;
+  const isoDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
   if (formatter) {
     try {
       const parts = formatter.formatToParts(date);
@@ -68,15 +74,33 @@ export function getLunarInfo(date: Date): LunarInfo | null {
           ? `${isLeap ? "闰" : ""}${LUNAR_MONTH_NAMES[monthIndex]}`
           : `${isLeap ? "闰" : ""}${monthText}月`;
         const dayLabel = LUNAR_DAY_NAMES[dayNumber - 1];
+
+        const holidayInfo = getDayHolidayInfo(isoDate, { monthLabel, dayLabel });
+        const cellLabel = holidayInfo.name || (dayNumber === 1 ? monthLabel : dayLabel);
+
         info = {
           monthLabel,
           dayLabel,
           isFirstDay: dayNumber === 1,
-          cellLabel: dayNumber === 1 ? monthLabel : dayLabel,
+          cellLabel,
+          holidayInfo,
         };
       }
     } catch {
       info = null;
+    }
+  }
+
+  if (!info) {
+    const holidayInfo = getDayHolidayInfo(isoDate, null);
+    if (holidayInfo.badge || holidayInfo.name) {
+      info = {
+        monthLabel: "",
+        dayLabel: "",
+        isFirstDay: false,
+        cellLabel: holidayInfo.name || "",
+        holidayInfo,
+      };
     }
   }
 
