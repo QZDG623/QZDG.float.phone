@@ -22,6 +22,7 @@ import {
     createResponseBatchId,
     createToolExecutionId,
     isSessionStreamingEnabled,
+    resolveMeetingInviteCardConfig,
 } from "./chat-storage";
 import { extractTextToolDirectiveText, stripTextToolDirectives } from "./text-tool-protocol";
 import { applyWithProtectedAvatarDecisionMarkers, findUserAvatarChangeIntent } from "./chat-avatar-intent";
@@ -1970,6 +1971,25 @@ export async function buildChatPromptMessages(
         llmMessages.push({
             role: "system",
             content: `当前会话状态：${character.name}已被${userIdentity?.name || "用户"}拉黑，${character.name}知道自己发出的消息会被拒收。`,
+        });
+    }
+    if (!session.isGroup && !isOfflineMode && resolvedAppId === "chat") {
+        const meetingInviteConfig = resolveMeetingInviteCardConfig(loadChatAppSettings());
+        llmMessages.push({
+            role: "system",
+            content: [
+                meetingInviteConfig.contract.trim() || "你可以根据当前对话语境，自主决定是否邀请用户线下见面。不要机械邀请，也不要频繁使用。",
+                "只有当你确实想见面时，才把契约要求的字段完整输出，并用 [邀请见面] 与 [/邀请见面] 包住整个字段区块。",
+                "字段内容会被界面按用户自定义 HTML 渲染成邀请卡片；包裹标签和字段不会显示成普通聊天文字。不要解释标签，每轮最多输出一张邀请卡片。",
+            ].join("\n"),
+        });
+        llmMessages.push({
+            role: "system",
+            content: [
+                `私聊备注信息：用户给你的备注是“${session.alias?.trim() || character.name}”；你给用户的备注是“${session.characterRemarkForUser?.trim() || "尚未设置"}”。`,
+                "用户询问备注时，请按当前信息自然回答。用户要求你更改你给TA的备注时，请结合人设与最近聊天决定新备注，并在自然回复末尾另起一行输出控制标记：[给用户备注:新备注]。",
+                "新备注不超过20个字；控制标记不会展示给用户。不要用这个标记改动用户给你的备注。",
+            ].join("\n"),
         });
     }
     if (avatarChangeIntent) {
